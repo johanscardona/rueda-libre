@@ -1,0 +1,51 @@
+#punto 4
+
+URL: ws://127.0.0.1:5500/index.html/ws
+ruta: index.html
+puerto: 101
+protocolo: HTTP 
+host: 127.0.0.1:5500
+estado: 102
+metodos: GET
+
+#punto 5	
+
+codigo: 404
+significa que el servidor funciona pero no encuentra el recurso destino
+
+#punto 6
+
+HTML: da la estructura de la pagina
+CSS: se encarga de los diseños la estetica y pintura
+JavaScrip: es el motor la logica de todo el codigo 
+========================================================================
+BITÁCORA DE CONFIGURACIÓN Y ANÁLISIS DE RED - RUEDA LIBRE
+========================================================================
+
+1. REGISTRO DE PETICIÓN LOCAL (DOCUMENTO BASE)
+------------------------------------------------------------------------
+Cuando se carga la página de inicio mediante Live Server, los datos arrojados por DevTools (Network) son:
+- URL Completa: http://127.0.0.1:5500/index.html
+- Protocolo: HTTP/1.1 (o HTTP/2 dependiendo del navegador de prueba)
+- Host: 127.0.0.1
+- Puerto: 5500
+- Ruta: /index.html
+- Método de la Petición: GET
+- Código de Estado: 200 OK (Indica que el servidor local procesó y entregó el documento con éxito).
+
+2. ANÁLISIS DE RUTA INEXISTENTE
+------------------------------------------------------------------------
+- URL Probada: http://127.0.0.1:5500/promociones.html
+- Código de Estado devuelto: 404 Not Found
+- Significado: El código 404 es un error del lado del cliente que indica que la conexión con el servidor se estableció correctamente, pero el servidor no pudo encontrar el recurso específico o la ruta que se solicitó en la dirección URL.
+
+3. ROL DE LAS TECNOLOGÍAS WEB EN RUEDA LIBRE
+------------------------------------------------------------------------
+- HTML (Lenguaje de Marcado): Es la estructura y el esqueleto del sitio web. Define qué elementos componen el contenido (títulos, tablas, listas de beneficios). 
+  * Ejemplo concreto: El uso de las etiquetas <table> y <tr> para ordenar los precios del alquiler de bicicletas.
+  
+- CSS (Hojas de Estilo): Es el encargado de la capa visual, la estética y el diseño interactivo del sitio. 
+  * Ejemplo concreto: Definir que los títulos <h1> usen un color verde vibrante que represente la movilidad sostenible y que las tablas tengan un espaciado limpio y legible.
+  
+- JavaScript (Lenguaje de Programación): Aporta el comportamiento dinámico y la interactividad lógica con el usuario.
+  * Ejemplo concreto: Un calculador interactivo en la sección de tarifas que multiplique automáticamente el costo de la bicicleta según el número de horas que el cliente seleccione.
