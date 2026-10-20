@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo: Asistente de Conocimiento</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: var(--primary);
+            color: white;
+            padding: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .chat-messages {
+            height: 350px;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #fafafa;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .message.bot {
+            background: var(--border);
+            color: var(--text);
+            align-self: flex-start;
+        }
+
+        .tag {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+        }
+        .tag-r { background: #dc2626; } /* Regla */
+        .tag-m { background: #9333ea; } /* Modelo */
+        .tag-h { background: #ea580c; } /* Humano */
+
+        .chat-input-area {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .limit-disclaimer {
+            font-size: 11px;
+            color: #64748b;
+            text-align: center;
+            padding: 8px;
+            background: #f1f5f9;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">🤖 Asistente Académico v1.0</div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <div class="message bot">
+            ¡Hola! Soy tu asistente de estudio. ¿Qué duda tienes sobre la materia hoy?
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" id="userInput" placeholder="Escribe tu pregunta aquí..." autocomplete="off">
+        <button onclick="procesarConsulta()">Enviar</button>
+    </div>
+
+    <!-- REQUISITO DEL RETO 3: Mensaje de límite visible -->
+    <div class="limit-disclaimer">
+        ⚠️ <strong>Límite:</strong> Solo respondo conceptos teóricos cargados en Moodle. No puedo dar notas, revisar tareas ni hablar de otros temas.
+    </div>
+</div>
+
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+
+    // Base de conocimiento simulada para el Modelo (M)
+    const baseConocimiento = {
+        "algoritmo": "Un algoritmo es una secuencia de pasos ordenados, lógicos y finitos para resolver un problema.",
+        "machine learning": "Es un enfoque donde la computadora aprende patrones a partir de ejemplos en lugar de seguir reglas fijas.",
+        "regla": "En programación, una regla es una instrucción condicional explícita: 'Si ocurre A, entonces haz B'."
+    };
+
+    function agregarMensaje(texto, remitente, tipoLogica = '') {
+        const div = document.createElement('div');
+        div.classList.add('message', remitente);
+        
+        let etiquetaHTML = '';
+        if (tipoLogica) {
+            let claseTag = tipoLogica === 'R' ? 'tag-r' : tipoLogica === 'M' ? 'tag-m' : 'tag-h';
+            etiquetaHTML = `<span class="tag ${claseTag}">[${tipoLogica}]</span><br>`;
+        }
+
+        div.innerHTML = `${etiquetaHTML}${texto}`;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function procesarConsulta() {
+        const query = userInput.value.trim().toLowerCase();
+        if (query === "") {
+            // [R] REGLA: Si la entrada está vacía, no hace nada o avisa
+            agregarMensaje("Por favor, escribe una pregunta antes de enviar.", "bot", "R");
+            return;
+        }
+
+        // Mostrar pregunta del usuario
+        agregarMensaje(userInput.value, "user");
+        userInput.value = "";
+
+        // Simulando el flujo del backend
+        setTimeout(() => {
+            
+            // 1. [R] REGLA DE FILTRADO (Control de frontera / Reto 4)
+            if (query.includes("nota") || query.includes("calificación") || query.includes("examen")) {
+                agregarMensaje("Detecté que preguntas por notas o evaluaciones. Mi regla del sistema me prohíbe responder esto. Por favor consulta con tu docente.", "bot", "R");
+                return;
+            }
+
+            if (query.includes("pizza") || query.includes("fútbol") || query.includes("receta")) {
+                agregarMensaje("Esa pregunta está fuera de mi tema académico asignado.", "bot", "R");
+                return;
+            }
+
+            // 2. [H] ESCALADO HUMANO: Simulación de temas críticos
+            if (query.includes("error en plataforma") || query.includes("soporte") || query.includes("bloqueado")) {
+                agregarMensaje("Esta es una solicitud técnica crítica. He derivado tu caso automáticamente a un asesor humano. Te contactarán al correo.", "bot", "H");
+                return;
+            }
+
+            // 3. [M] MODELO DE IA: Búsqueda y generación adaptativa
+            let encontrado = false;
+            for (let clave in baseConocimiento) {
+                if (query.includes(clave)) {
+                    agregarMensaje(`Procesando con el Modelo de Lenguaje... Basado en el material de Moodle: ${baseConocimiento[clave]}`, "bot", "M");
+                    encontrado = true;
+                    break;
+                }
+            }
+
+            if (!encontrado) {
+                // Falla del modelo por falta de contexto (Reto 4)
+                agregarMensaje("El modelo analizó tu consulta pero no encontró información suficiente en los documentos para responder con seguridad.", "bot", "M");
+            }
+
+        }, 600);
+    }
+
+    // Permitir enviar con la tecla Enter
+    userInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            procesarConsulta();
+        }
+    });
+</script>
+
+</body>
+</html>
